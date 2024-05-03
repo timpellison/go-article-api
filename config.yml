@@ -1,0 +1,8 @@
+server:
+  port: 8080
+database:
+  cluster: localhost
+  port: 5433
+  databasename: postgres
+  username: postgres
+  password: postgres

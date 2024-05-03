@@ -1,0 +1,9 @@
+services:
+  database:
+    container_name: database
+    image: postgres:16.1
+    environment:
+      POSTGRES_USERNAME: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5433:5432"
