@@ -1,4 +1,4 @@
-package Dto
+package dto
 
 type Article struct {
 	Id          uint   `json:"id"`

@@ -1,3 +1,4 @@
+# sort of reminiscient of
 GOFMT ?= gofmt "-s"
 GOFILES := $(shell find . -name "*.go")
 

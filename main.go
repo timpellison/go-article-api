@@ -5,10 +5,10 @@ import (
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"goservice/Config"
-	"goservice/Domain"
-	"goservice/Persistence"
-	"goservice/Server"
+	"goservice/config"
+	"goservice/domain"
+	"goservice/persistence"
+	"goservice/server"
 	"strconv"
 	"strings"
 )
@@ -35,7 +35,7 @@ func main() {
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.SetConfigFile("config.yml")
 
-	var config = &Config.Configuration{}
+	var config = &config.Configuration{}
 	if err := viper.ReadInConfig(); err != nil {
 		fmt.Printf("Unable to decode config file, %v", err)
 	}
@@ -58,14 +58,14 @@ func main() {
 		fmt.Printf("Unable to connect to database, %v", err)
 	}
 
-	err = db.AutoMigrate(&Domain.Article{})
+	err = db.AutoMigrate(&domain.Article{})
 	if err != nil {
 		fmt.Printf("Unable to migrate database, %v", err)
 	}
 
 	// stand up our repository
-	repo := Persistence.NewArticleRepository(config, db)
+	repo := persistence.NewArticleRepository(config, db)
 
-	server := Server.NewServer(repo, config)
+	server := server.NewServer(repo, config)
 	server.Run()
 }

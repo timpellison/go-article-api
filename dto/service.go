@@ -1,4 +1,4 @@
-package Dto
+package dto
 
 type ServiceDto struct {
 	Data     any          `json:"data"`

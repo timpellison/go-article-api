@@ -1,4 +1,4 @@
-package Dto
+package dto
 
 type Hypermedia struct {
 	Relation  string `json:"_rel"`

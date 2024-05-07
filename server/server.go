@@ -1,20 +1,20 @@
-package Server
+package server
 
 import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	"goservice/Config"
-	"goservice/Domain"
-	"goservice/Dto"
-	"goservice/Persistence"
+	"goservice/config"
+	"goservice/domain"
+	"goservice/dto"
+	"goservice/persistence"
 	"net/http"
 	"strconv"
 )
 
 type Server struct {
-	repository    *Persistence.IArticleRepository
-	configuration *Config.Configuration
+	repository    *persistence.IArticleRepository
+	configuration *config.Configuration
 }
 
 type IArticleServer interface {
@@ -23,12 +23,12 @@ type IArticleServer interface {
 }
 
 type ArticleServer struct {
-	Configuration *Config.Configuration
-	Repository    *Persistence.ArticleRepository
+	Configuration *config.Configuration
+	Repository    *persistence.ArticleRepository
 	Handler       *mux.Router
 }
 
-func NewServer(repository *Persistence.ArticleRepository, configuration *Config.Configuration) IArticleServer {
+func NewServer(repository *persistence.ArticleRepository, configuration *config.Configuration) IArticleServer {
 	router := mux.NewRouter()
 	server := &ArticleServer{Configuration: configuration, Repository: repository, Handler: router}
 	router.Handle("/api/v1/articles", newArticleHandler(server)).Methods("POST")
@@ -36,7 +36,7 @@ func NewServer(repository *Persistence.ArticleRepository, configuration *Config.
 	router.Handle("/api/v1/articles", articlesHandler(server)).Methods("GET")
 	router.Handle("/api/v1/articles/{id}", articleHandler(server)).Methods("GET")
 	router.Handle("/api/v1/articles/{id}", deleteArticleHandler(server)).Methods("DELETE")
-
+	router.StrictSlash(false)
 	return server
 }
 
@@ -55,7 +55,7 @@ func (server *ArticleServer) Cancel() {
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	dto := Dto.NewServiceDto("Articles API")
+	dto := dto.NewServiceDto("Articles API")
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	err := json.NewEncoder(w).Encode(dto)
@@ -80,7 +80,7 @@ func articleHandler(server *ArticleServer) http.Handler {
 				w.WriteHeader(http.StatusNotFound)
 				return
 			}
-			article := &Dto.Article{Id: result.ID, Title: result.Title, Description: result.Description, Content: result.Content}
+			article := &dto.Article{Id: result.ID, Title: result.Title, Description: result.Description, Content: result.Content}
 			w.Header().Set("Content-Type", "application/json")
 			err = json.NewEncoder(w).Encode(article)
 			if err != nil {
@@ -95,8 +95,8 @@ func articlesHandler(server *ArticleServer) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			articles := server.Repository.GetMany()
-			var articleResult = make([]Dto.Article, len(*articles))
-			var hypermedia = make([]Dto.Hypermedia, 0)
+			var articleResult = make([]dto.Article, len(*articles))
+			var hypermedia = make([]dto.Hypermedia, 0)
 
 			for i, v := range *articles {
 				articleResult[i].Id = v.ID
@@ -105,7 +105,7 @@ func articlesHandler(server *ArticleServer) http.Handler {
 				articleResult[i].Content = v.Content
 			}
 
-			response := Dto.NewServiceDto(articleResult)
+			response := dto.NewServiceDto(articleResult)
 			response.Metadata = hypermedia
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
@@ -119,7 +119,7 @@ func articlesHandler(server *ArticleServer) http.Handler {
 func newArticleHandler(server *ArticleServer) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			var article Dto.Article
+			var article dto.Article
 			err := json.NewDecoder(r.Body).Decode(&article)
 
 			if err != nil {
@@ -128,14 +128,14 @@ func newArticleHandler(server *ArticleServer) http.Handler {
 				return
 			}
 
-			domainArticle := &Domain.Article{Title: article.Title, Description: article.Description, Content: article.Content}
+			domainArticle := &domain.Article{Title: article.Title, Description: article.Description, Content: article.Content}
 			domainArticle = server.Repository.Add(domainArticle)
 
 			article.Id = domainArticle.ID
 			article.Title = domainArticle.Title
 			article.Description = domainArticle.Description
 			article.Content = domainArticle.Content
-			response := Dto.NewServiceDto(article)
+			response := dto.NewServiceDto(article)
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
 			err = json.NewEncoder(w).Encode(response)
