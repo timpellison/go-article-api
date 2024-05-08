@@ -19,9 +19,8 @@ type ArticleRepository struct {
 	config   *config.Configuration
 }
 
-func NewArticleRepository(configuration *config.Configuration, database *gorm.DB) *ArticleRepository {
-	result := &ArticleRepository{database: database, config: configuration}
-	return result
+func NewArticleRepository(configuration *config.Configuration, database *gorm.DB) (result *ArticleRepository) {
+	result = &ArticleRepository{database: database, config: configuration}
 }
 
 func (r ArticleRepository) Add(article *domain.Article) *domain.Article {

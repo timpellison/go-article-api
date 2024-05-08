@@ -1,8 +1,13 @@
 package dto
 
 type Article struct {
-	Id          uint   `json:"id"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Content     string `json:"content"`
+	Metadata    []Hypermedia `json:"_metadata,omitempty"`
+	Id          uint         `json:"id,omitempty"`
+	Title       string       `json:"title,omitempty"`
+	Description string       `json:"description,omitempty"`
+	Content     string       `json:"content,omitempty"`
+}
+
+func NewArticle(id uint, title, description, content string, metadata []Hypermedia) *Article {
+	return &Article{metadata, id, title, description, content}
 }

@@ -55,12 +55,9 @@ func (server *ArticleServer) Cancel() {
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	dto := dto.NewServiceDto("Articles API")
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	err := json.NewEncoder(w).Encode(dto)
+	_, err := fmt.Fprintf(w, "%s", "Articles API")
 	if err != nil {
-		panic(err)
+		return
 	}
 }
 
@@ -81,6 +78,11 @@ func articleHandler(server *ArticleServer) http.Handler {
 				return
 			}
 			article := &dto.Article{Id: result.ID, Title: result.Title, Description: result.Description, Content: result.Content}
+			var media = []dto.Hypermedia{
+				dto.Hypermedia{Relation: "delete", Reference: "/api/v1/articles/" + strconv.FormatInt(int64(id), 10)},
+			}
+			article.Metadata = media
+
 			w.Header().Set("Content-Type", "application/json")
 			err = json.NewEncoder(w).Encode(article)
 			if err != nil {
@@ -96,17 +98,21 @@ func articlesHandler(server *ArticleServer) http.Handler {
 		func(w http.ResponseWriter, r *http.Request) {
 			articles := server.Repository.GetMany()
 			var articleResult = make([]dto.Article, len(*articles))
-			var hypermedia = make([]dto.Hypermedia, 0)
 
 			for i, v := range *articles {
 				articleResult[i].Id = v.ID
 				articleResult[i].Title = v.Title
 				articleResult[i].Description = v.Description
 				articleResult[i].Content = v.Content
+
+				var hypermedia = []dto.Hypermedia{
+					dto.NewHypermedia("delete", "/api/v1/articles/"+strconv.FormatInt(int64(v.ID), 10)),
+				}
+				articleResult[i].Metadata = hypermedia
 			}
 
-			response := dto.NewServiceDto(articleResult)
-			response.Metadata = hypermedia
+			response := articleResult
+
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
 			err := json.NewEncoder(w).Encode(response)
@@ -135,10 +141,15 @@ func newArticleHandler(server *ArticleServer) http.Handler {
 			article.Title = domainArticle.Title
 			article.Description = domainArticle.Description
 			article.Content = domainArticle.Content
-			response := dto.NewServiceDto(article)
+
+			var hypermedia = []dto.Hypermedia{
+				dto.NewHypermedia("delete", "/api/v1/articles/"+strconv.FormatInt(int64(article.Id), 10)),
+			}
+			article.Metadata = hypermedia
+
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			err = json.NewEncoder(w).Encode(response)
+			err = json.NewEncoder(w).Encode(article)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 			}
