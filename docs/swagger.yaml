@@ -1,0 +1,77 @@
+definitions:
+  dto.Article:
+    properties:
+      _metadata:
+        items:
+          $ref: '#/definitions/dto.Hypermedia'
+        type: array
+      content:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
+  dto.Hypermedia:
+    properties:
+      _ref:
+        type: string
+      _rel:
+        type: string
+    type: object
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is the articles API
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Articles API
+  version: "1.0"
+paths:
+  /:
+    get:
+      consumes:
+      - application/json
+      description: get welcome message
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+      summary: See the hwllo world message
+      tags:
+      - articles
+  /api/v1/articles/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get an article by id
+      parameters:
+      - description: The id of the article to retrieve
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Article'
+        "500":
+          description: Internal Server Error
+      summary: Get a specific article by its id
+      tags:
+      - articles
+swagger: "2.0"

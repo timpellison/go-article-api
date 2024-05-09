@@ -5,27 +5,18 @@ import (
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"goservice/api"
 	"goservice/config"
 	"goservice/domain"
 	"goservice/persistence"
-	"os"
 	"strconv"
 	"strings"
 )
 
-// @title Articles API
-// @version 1.0
-// @description This is the articles API
-// @termsOfService http://swagger.io/terms/
-
-// @contact.name API Support
-// @contact.url http://www.swagger.io/support
-// @contact.email support@swagger.io
-
-// @license.name Apache 2.0
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 func main() {
+	Execute()
+}
+
+func Execute() {
 	// let's get some config going!
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
@@ -64,9 +55,4 @@ func main() {
 	if err != nil {
 		fmt.Printf("Unable to connect to database, %v", err)
 	}
-
-	server := api.NewServer(repo, config)
-	server.Run()
-
-	os.Exit(1)
 }
