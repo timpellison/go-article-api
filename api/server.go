@@ -107,7 +107,7 @@ func articleHandler(server *ArticleServer) http.Handler {
 
 			article := &dto.Article{Id: result.ID, Title: result.Title, Description: result.Description, Content: result.Content}
 			var media = []dto.Hypermedia{
-				dto.Hypermedia{Relation: "delete", Reference: "/api/v1/articles/" + strconv.FormatInt(int64(id), 10)},
+				{Relation: "delete", Reference: "/api/v1/articles/" + strconv.FormatInt(int64(id), 10)},
 			}
 			article.Metadata = media
 
