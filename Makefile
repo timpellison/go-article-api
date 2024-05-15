@@ -2,10 +2,23 @@
 GOFMT ?= gofmt "-s"
 GOFILES := $(shell find . -name "*.go")
 
-.PHONY: hello
-hello:
-	echo "Hello!"
+.PHONY: swagger
+swagger:
+	echo "Running swagger stuff" \
+	&& swag init --dir ./cmd/http-server,./api,./dto -o ./docs
+
 
 .PHONY: fmt
 fmt:
 	$(GOFMT) -w $(GOFILES)
+
+.PHONY: dock
+dock:
+	docker compose -f ./Local/docker-compose.yaml down
+	docker build . -f ./Local/Dockerfile -t articleapi:latest --progress=plain
+	docker compose -f ./Local/docker-compose.yaml up -d
+
+.PHONE: undock
+undock:
+	docker compose -f ./Local/docker-compose.yaml down
+	docker image rm articleapi

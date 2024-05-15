@@ -75,15 +75,15 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 
 // Articles godoc
 //
-//	@Summary		Get a specific article by its id
-//	@Description	get an article by id
-//	@Tags			articles
-//	@Accept			json
-//	@Produce		json
-//	@Success		200	{object}	dto.Article
-//	@Failure		500
-//	@Param          id path uint true "The id of the article to retrieve"
-//	@Router			/api/v1/articles/{id} [get]
+//		@Summary		Returns an article by its ID
+//		@Description	Returns an article by its ID
+//		@Tags			articles
+//		@Accept			json
+//		@Produce		json
+//		@Success		200	{object}	dto.Article
+//		@Failure		500
+//	    @Param          Id path uint true "Article Id"
+//		@Router			/api/v1/articles/{Id} [get]
 func articleHandler(server *ArticleServer) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
@@ -121,6 +121,16 @@ func articleHandler(server *ArticleServer) http.Handler {
 		})
 }
 
+// Articles godoc
+//
+//	@Summary		Returns all articles
+//	@Description	Returns all articles
+//	@Tags			articles
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	[]dto.Article
+//	@Failure		500
+//	@Router			/api/v1/articles [get]
 func articlesHandler(server *ArticleServer) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
@@ -128,18 +138,14 @@ func articlesHandler(server *ArticleServer) http.Handler {
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 			}
-			var articleResult = make([]dto.Article, len(*articles))
+			var articleResult []*dto.Article
 
-			for i, v := range *articles {
-				articleResult[i].Id = v.ID
-				articleResult[i].Title = v.Title
-				articleResult[i].Description = v.Description
-				articleResult[i].Content = v.Content
-
+			for _, v := range *articles {
 				var hypermedia = []dto.Hypermedia{
 					dto.NewHypermedia("delete", "/api/v1/articles/"+strconv.FormatInt(int64(v.ID), 10)),
 				}
-				articleResult[i].Metadata = hypermedia
+				var a = dto.NewArticle(v.ID, v.Title, v.Description, v.Content, hypermedia)
+				_ = append(articleResult, a)
 			}
 
 			response := articleResult
@@ -153,6 +159,17 @@ func articlesHandler(server *ArticleServer) http.Handler {
 		})
 }
 
+// Articles godoc
+//
+//		@Summary		Add a new Article to the system
+//		@Description	Add a new Article to the system
+//		@Tags			articles
+//		@Accept			json
+//		@Produce		json
+//		@Success		200	{object}	dto.Article
+//		@Failure		500
+//	    @Param          article body dto.Article true "Article"
+//		@Router			/api/v1/articles [post]
 func newArticleHandler(server *ArticleServer) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
@@ -190,6 +207,18 @@ func newArticleHandler(server *ArticleServer) http.Handler {
 		})
 }
 
+// Articles godoc
+//
+//			@Summary		Delete the article identified by Id
+//			@Description	Delete the article identified by Id
+//			@Tags			articles
+//			@Accept			json
+//			@Produce		json
+//			@Success		200
+//			@Failure		500
+//	     	@Failure        400
+//		    @Param          Id path uint true "Article Id"
+//			@Router			/api/v1/articles/{Id} [delete]
 func deleteArticleHandler(server *ArticleServer) http.Handler {
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		id, err := strconv.Atoi(mux.Vars(request)["id"])

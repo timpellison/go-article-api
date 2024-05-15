@@ -2,9 +2,12 @@ package persistence
 
 import (
 	"fmt"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"goservice/config"
 	"goservice/domain"
+	"strconv"
+	"time"
 )
 
 type IArticleRepository interface {
@@ -19,8 +22,44 @@ type ArticleRepository struct {
 	config   *config.Configuration
 }
 
-func NewArticleRepository(configuration *config.Configuration, database *gorm.DB) (*ArticleRepository, error) {
-	result := &ArticleRepository{database: database, config: configuration}
+const DatabaseCluster = "DATABASE_CLUSTER"
+const DatabaseUserName = "DATABASE_USERNAME"
+const DatabasePassword = "DATABASE_PASSWORD"
+const DatabaseHost = "DATABASE_PORT"
+const DatabaseName = "DATABASE_DATABASENAME"
+const DatabasePort = "DATABASE_PORT"
+
+func NewArticleRepository(configuration *config.Configuration) (*ArticleRepository, error) {
+	// now for some persistence
+	dsn := "host=" + configuration.Database.Cluster +
+		" user=" + configuration.Database.UserName +
+		" port=" + strconv.FormatInt(int64(configuration.Database.Port), 10) +
+		" dbname=" + configuration.Database.DatabaseName +
+		" password=" + configuration.Database.Password +
+		" sslmode=disable" +
+		" TimeZone=UTC"
+
+	fmt.Printf("Database connection is %s", dsn)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		for i := 0; i < 10; i++ {
+			db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+			if err == nil {
+				break
+			}
+			time.Sleep(1 * time.Second)
+		}
+		if err != nil {
+			panic(err.Error())
+		}
+	}
+
+	err = db.AutoMigrate(&domain.Article{})
+	if err != nil {
+		fmt.Printf("Unable to migrate database, %v", err)
+		return nil, err
+	}
+	result := &ArticleRepository{database: db, config: configuration}
 	return result, nil
 }
 

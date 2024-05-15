@@ -42,9 +42,9 @@
                 }
             }
         },
-        "/api/v1/articles/{id}": {
+        "/api/v1/articles": {
             "get": {
-                "description": "get an article by id",
+                "description": "Returns all articles",
                 "consumes": [
                     "application/json"
                 ],
@@ -54,12 +54,76 @@
                 "tags": [
                     "articles"
                 ],
-                "summary": "Get a specific article by its id",
+                "summary": "Returns all articles",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.Article"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "post": {
+                "description": "Add a new Article to the system",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "summary": "Add a new Article to the system",
+                "parameters": [
+                    {
+                        "description": "Article",
+                        "name": "article",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.Article"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Article"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/api/v1/articles/{Id}": {
+            "get": {
+                "description": "Returns an article by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "summary": "Returns an article by its ID",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "The id of the article to retrieve",
-                        "name": "id",
+                        "description": "Article Id",
+                        "name": "Id",
                         "in": "path",
                         "required": true
                     }
@@ -70,6 +134,39 @@
                         "schema": {
                             "$ref": "#/definitions/dto.Article"
                         }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete the article identified by Id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "summary": "Delete the article identified by Id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Article Id",
+                        "name": "Id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request"
                     },
                     "500": {
                         "description": "Internal Server Error"
