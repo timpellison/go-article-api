@@ -24,32 +24,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/": {
-            "get": {
-                "description": "get welcome message",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "articles"
-                ],
-                "summary": "See the hwllo world message",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error"
-                    }
-                }
-            }
-        },
         "/api/v1/articles": {
             "get": {
                 "description": "Returns all articles",
@@ -97,7 +71,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.Article"
+                            "$ref": "#/definitions/dto.ArticleData"
                         }
                     }
                 ],
@@ -105,7 +79,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.Article"
+                            "$ref": "#/definitions/dto.ArticleData"
                         }
                     },
                     "500": {
@@ -201,6 +175,20 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ArticleData": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
                 },
                 "title": {
                     "type": "string"

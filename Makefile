@@ -18,7 +18,11 @@ dock:
 	docker build . -f ./Local/Dockerfile -t articleapi:latest --progress=plain
 	docker compose -f ./Local/docker-compose.yaml up -d
 
-.PHONE: undock
+.PHONY: undock
 undock:
 	docker compose -f ./Local/docker-compose.yaml down
 	docker image rm articleapi
+
+.PHONY: run
+run:
+	CGO_ENABLED=1 go run ./cmd/http-server

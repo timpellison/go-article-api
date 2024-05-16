@@ -10,14 +10,11 @@ import (
 	"goservice/domain"
 	"goservice/dto"
 	"goservice/persistence"
+	"log"
 	"net/http"
+	"os"
 	"strconv"
 )
-
-type Server struct {
-	repository    *persistence.IArticleRepository
-	configuration *config.Configuration
-}
 
 type IArticleServer interface {
 	Run()
@@ -26,6 +23,7 @@ type IArticleServer interface {
 type ArticleServer struct {
 	Configuration *config.Configuration
 	Repository    *persistence.ArticleRepository
+	Logger        *log.Logger
 	Handler       *mux.Router
 }
 
@@ -33,17 +31,19 @@ func NewServer(repository *persistence.ArticleRepository, configuration *config.
 	router := mux.NewRouter()
 	server := &ArticleServer{Configuration: configuration, Repository: repository, Handler: router}
 	router.Handle("/api/v1/articles", newArticleHandler(server)).Methods("POST")
-	router.HandleFunc("/", rootHandler).Methods("GET")
 	router.Handle("/api/v1/articles", articlesHandler(server)).Methods("GET")
 	router.Handle("/api/v1/articles/{id}", articleHandler(server)).Methods("GET")
 	router.Handle("/api/v1/articles/{id}", deleteArticleHandler(server)).Methods("DELETE")
 	router.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 	router.StrictSlash(false)
+
+	log.SetOutput(os.Stdout)
+	server.Logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.Lshortfile)
 	return server
 }
 
 func (server *ArticleServer) Run() {
-	var serverPort = "0.0.0.0:" + strconv.Itoa(server.Configuration.Server.Port)
+	var serverPort = ":" + strconv.Itoa(server.Configuration.Server.Port)
 	err := http.ListenAndServe(serverPort, server.Handler)
 	if err != nil {
 		return
@@ -53,24 +53,6 @@ func (server *ArticleServer) Run() {
 
 func (server *ArticleServer) Cancel() {
 
-}
-
-// Articles godoc
-//
-//	@Summary		See the hwllo world message
-//	@Description	get welcome message
-//	@Tags			articles
-//	@Accept			json
-//	@Produce		json
-//	@Success		200	{object}	string
-//	@Failure		500
-//	@Router			/ [get]
-func rootHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	_, err := fmt.Fprintf(w, "%s", "Articles API")
-	if err != nil {
-		return
-	}
 }
 
 // Articles godoc
@@ -136,24 +118,30 @@ func articlesHandler(server *ArticleServer) http.Handler {
 		func(w http.ResponseWriter, r *http.Request) {
 			articles, err := server.Repository.GetMany()
 			if err != nil {
+				log.Println(err)
 				w.WriteHeader(http.StatusInternalServerError)
 			}
-			var articleResult []*dto.Article
+			var articleResult = make([]dto.Article, len(*articles))
+			server.Logger.Printf("Total length of articles is %d\n", len(*articles))
 
-			for _, v := range *articles {
+			for i, v := range *articles {
 				var hypermedia = []dto.Hypermedia{
 					dto.NewHypermedia("delete", "/api/v1/articles/"+strconv.FormatInt(int64(v.ID), 10)),
+					dto.NewHypermedia("get", "/api/v1/articles/"+strconv.FormatInt(int64(v.ID), 10)),
 				}
-				var a = dto.NewArticle(v.ID, v.Title, v.Description, v.Content, hypermedia)
-				_ = append(articleResult, a)
+				articleResult[i].Id = v.ID
+				articleResult[i].Title = v.Title
+				articleResult[i].Description = v.Description
+				articleResult[i].Content = v.Content
+				articleResult[i].Metadata = hypermedia
+				server.Logger.Printf("Article added.  Id is %d, Title is %v\n", articleResult[i].Id, articleResult[i].Title)
 			}
 
-			response := articleResult
-
 			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			err = json.NewEncoder(w).Encode(response)
+			err = json.NewEncoder(w).Encode(&articleResult)
+
 			if err != nil {
+				server.Logger.Printf("Error encoding articles to json: %v\n", err)
 				w.WriteHeader(http.StatusInternalServerError)
 			}
 		})
@@ -166,14 +154,14 @@ func articlesHandler(server *ArticleServer) http.Handler {
 //		@Tags			articles
 //		@Accept			json
 //		@Produce		json
-//		@Success		200	{object}	dto.Article
+//		@Success		200	{object}	dto.ArticleData
 //		@Failure		500
-//	    @Param          article body dto.Article true "Article"
+//	    @Param          article body dto.ArticleData true "Article"
 //		@Router			/api/v1/articles [post]
 func newArticleHandler(server *ArticleServer) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			var article dto.Article
+			var article dto.ArticleData
 			err := json.NewDecoder(r.Body).Decode(&article)
 
 			if err != nil {
@@ -188,19 +176,21 @@ func newArticleHandler(server *ArticleServer) http.Handler {
 				w.WriteHeader(http.StatusInternalServerError)
 			}
 
-			article.Id = domainArticle.ID
-			article.Title = domainArticle.Title
-			article.Description = domainArticle.Description
-			article.Content = domainArticle.Content
+			newArticle := &dto.Article{}
+
+			newArticle.Id = domainArticle.ID
+			newArticle.Title = domainArticle.Title
+			newArticle.Description = domainArticle.Description
+			newArticle.Content = domainArticle.Content
 
 			var hypermedia = []dto.Hypermedia{
-				dto.NewHypermedia("delete", "/api/v1/articles/"+strconv.FormatInt(int64(article.Id), 10)),
+				dto.NewHypermedia("delete", "/api/v1/articles/"+strconv.FormatInt(int64(newArticle.Id), 10)),
 			}
-			article.Metadata = hypermedia
+			newArticle.Metadata = hypermedia
 
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			err = json.NewEncoder(w).Encode(article)
+			err = json.NewEncoder(w).Encode(newArticle)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 			}

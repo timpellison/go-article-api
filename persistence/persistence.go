@@ -39,7 +39,6 @@ func NewArticleRepository(configuration *config.Configuration) (*ArticleReposito
 		" sslmode=disable" +
 		" TimeZone=UTC"
 
-	fmt.Printf("Database connection is %s", dsn)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		for i := 0; i < 10; i++ {
@@ -53,7 +52,7 @@ func NewArticleRepository(configuration *config.Configuration) (*ArticleReposito
 			panic(err.Error())
 		}
 	}
-
+	fmt.Printf("CONNECTION SUCCESSFUL!  Connected to database %s on cluster %s", configuration.Database.DatabaseName, configuration.Database.Cluster)
 	err = db.AutoMigrate(&domain.Article{})
 	if err != nil {
 		fmt.Printf("Unable to migrate database, %v", err)

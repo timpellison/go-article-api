@@ -14,7 +14,7 @@ RUN echo 'Listing of all cmd/http-server files'
 RUN ls -al cmd/http-server
 RUN go clean -modcache
 RUN go mod download
-RUN CGO_ENABLED=0 GOOS=linux go build -o /publish/goservice ./cmd/http-server
+RUN CGO_ENABLED=1 GOOS=linux go build -o /publish/goservice ./cmd/http-server
 
 
 FROM alpine:latest as publish

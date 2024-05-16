@@ -14,6 +14,15 @@ definitions:
       title:
         type: string
     type: object
+  dto.ArticleData:
+    properties:
+      content:
+        type: string
+      description:
+        type: string
+      title:
+        type: string
+    type: object
   dto.Hypermedia:
     properties:
       _ref:
@@ -34,23 +43,6 @@ info:
   title: Articles API
   version: "1.0"
 paths:
-  /:
-    get:
-      consumes:
-      - application/json
-      description: get welcome message
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-      summary: See the hwllo world message
-      tags:
-      - articles
   /api/v1/articles:
     get:
       consumes:
@@ -80,14 +72,14 @@ paths:
         name: article
         required: true
         schema:
-          $ref: '#/definitions/dto.Article'
+          $ref: '#/definitions/dto.ArticleData'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.Article'
+            $ref: '#/definitions/dto.ArticleData'
         "500":
           description: Internal Server Error
       summary: Add a new Article to the system
