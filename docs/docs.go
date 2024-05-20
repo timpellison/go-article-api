@@ -26,7 +26,7 @@ const docTemplate = `{
     "paths": {
         "/api/v1/articles": {
             "get": {
-                "description": "Returns all articles",
+                "description": "Get the full list of articles",
                 "consumes": [
                     "application/json"
                 ],

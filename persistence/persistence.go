@@ -25,7 +25,6 @@ type ArticleRepository struct {
 const DatabaseCluster = "DATABASE_CLUSTER"
 const DatabaseUserName = "DATABASE_USERNAME"
 const DatabasePassword = "DATABASE_PASSWORD"
-const DatabaseHost = "DATABASE_PORT"
 const DatabaseName = "DATABASE_DATABASENAME"
 const DatabasePort = "DATABASE_PORT"
 
@@ -73,7 +72,7 @@ func (r ArticleRepository) Add(article *domain.Article) (*domain.Article, error)
 
 func (r ArticleRepository) Delete(article *domain.Article) error {
 	fmt.Printf("Article to delete is %v", article)
-	tx := r.database.Delete(&article)
+	tx := r.database.Delete(article)
 	if tx.Error != nil {
 		return tx.Error
 	}

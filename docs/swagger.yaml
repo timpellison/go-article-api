@@ -47,7 +47,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Returns all articles
+      description: Get the full list of articles
       produces:
       - application/json
       responses:

@@ -1,5 +1,7 @@
 package main
 
+import "goservice/cmd/dunectl/internal/commands"
+
 func main() {
-	Execute()
+	commands.Execute()
 }
