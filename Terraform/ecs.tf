@@ -3,7 +3,7 @@ module "ecs" {
 
   cluster_name = var.cluster_name
 
-  cluster_configuration =  {
+  cluster_configuration = {
     execute_command_configuration = {
       logging = "OVERRIDE"
       log_configuration = {
