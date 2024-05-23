@@ -1,5 +1,5 @@
 variable "cluster_name" {
-  type = string
-  default = "tpe-cluster"
+  type        = string
+  default     = "tpe-cluster"
   description = "Name of ECS cluster"
 }
