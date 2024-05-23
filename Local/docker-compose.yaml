@@ -1,9 +1,30 @@
+version: '2'
+
 services:
   database:
-    container_name: database
+    container_name: articleapi-data
     image: postgres:16.1
     environment:
       POSTGRES_USERNAME: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - data:/var/lib/postgresql/data
+#    labels:
+#      - io.rancher.container.network=true
     ports:
       - "5433:5432"
+  api:
+    build:
+      context: ../
+      dockerfile: ./Local/Dockerfile
+    image: articleapi:latest
+    container_name: articleapi
+#    labels:
+#      - io.rancher.container.network=true
+    ports:
+      - "8081:8080"
+    environment:
+      - DATABASE_PORT=5432
+      - DATABASE_CLUSTER=database
+volumes:
+  data: {}

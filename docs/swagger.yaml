@@ -1,0 +1,133 @@
+definitions:
+  dto.Article:
+    properties:
+      _metadata:
+        items:
+          $ref: '#/definitions/dto.Hypermedia'
+        type: array
+      content:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
+  dto.ArticleData:
+    properties:
+      content:
+        type: string
+      description:
+        type: string
+      title:
+        type: string
+    type: object
+  dto.Hypermedia:
+    properties:
+      _ref:
+        type: string
+      _rel:
+        type: string
+    type: object
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is the articles API
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Articles API
+  version: "1.0"
+paths:
+  /api/v1/articles:
+    get:
+      consumes:
+      - application/json
+      description: Get the full list of articles
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.Article'
+            type: array
+        "500":
+          description: Internal Server Error
+      summary: Returns all articles
+      tags:
+      - articles
+    post:
+      consumes:
+      - application/json
+      description: Add a new Article to the system
+      parameters:
+      - description: Article
+        in: body
+        name: article
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ArticleData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ArticleData'
+        "500":
+          description: Internal Server Error
+      summary: Add a new Article to the system
+      tags:
+      - articles
+  /api/v1/articles/{Id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete the article identified by Id
+      parameters:
+      - description: Article Id
+        in: path
+        name: Id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      summary: Delete the article identified by Id
+      tags:
+      - articles
+    get:
+      consumes:
+      - application/json
+      description: Returns an article by its ID
+      parameters:
+      - description: Article Id
+        in: path
+        name: Id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Article'
+        "500":
+          description: Internal Server Error
+      summary: Returns an article by its ID
+      tags:
+      - articles
+swagger: "2.0"
