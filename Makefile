@@ -15,12 +15,12 @@ fmt:
 dock:
 	$(MAKE) swagger
 	$(MAKE) undock
-	docker build . -f ./Local/Dockerfile -t articleapi:latest --progress=plain
-	docker compose -f ./Local/docker-compose.yaml up -d
+	docker build . -f ./.local/Dockerfile -t articleapi:latest --progress=plain
+	docker compose -f ./.local/docker-compose.yaml up -d
 
 .PHONY: undock
 undock:
-	docker compose -f ./Local/docker-compose.yaml down
+	docker compose -f ./.local/docker-compose.yaml down
 	docker image rm articleapi
 
 .PHONY: run

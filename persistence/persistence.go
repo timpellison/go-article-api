@@ -10,13 +10,6 @@ import (
 	"time"
 )
 
-type IArticleRepository interface {
-	Add(article *domain.Article) *domain.Article
-	Delete(article *domain.Article)
-	GetOne(id uint) *domain.Article
-	GetMany() []domain.Article
-}
-
 type ArticleRepository struct {
 	database *gorm.DB
 	config   *config.Configuration

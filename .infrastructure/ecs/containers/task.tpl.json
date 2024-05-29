@@ -1,0 +1,36 @@
+[
+  {
+    "name": "${APP_NAME}",
+    "image": "470239745256.dkr.ecr.aws_region.amazonaws.com/ecr-ue1-article-api-poc:latest",
+    "essential":true,
+    "portMappings": [
+      {
+        "containerPort": 8080,
+      "hostPort": 8080
+    }
+    ],
+    "environment" : [
+      {
+         "name" : "DATABASE_CLUSTER",
+         "value" : "${DATABASE_CLUSTER}"
+      },
+      {
+        "name" : "DATABASE_USERNAME",
+        "value" : "${DATABASE_USERNAME}"
+      },
+      {
+        "name" : "DATABASE_PASSWORD",
+        "value" : "${DATABASE_PASSWORD}"
+      }
+    ],
+    "command" : ["./goservice"],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-region": "${REGION}",
+        "awslogs-stream-prefix": "app-logstream",
+        "awslogs-group": "${LOG_GROUP}"
+      }
+    }
+  }
+]
