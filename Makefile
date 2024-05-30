@@ -26,4 +26,4 @@ undock:
 .PHONY: run
 run:
 	$(MAKE) swagger
-	CGO_ENABLED=1 go run ./cmd/http-server
+	CGO_ENABLED=1 go run ./cmd/hello-server

@@ -20,6 +20,7 @@ const DatabaseUserName = "DATABASE_USERNAME"
 const DatabasePassword = "DATABASE_PASSWORD"
 const DatabaseName = "DATABASE_DATABASENAME"
 const DatabasePort = "DATABASE_PORT"
+const DatabaseSslMode = "DATABASE_SSLMODE"
 
 func NewArticleRepository(configuration *config.Configuration) (*ArticleRepository, error) {
 	// now for some persistence
@@ -28,7 +29,7 @@ func NewArticleRepository(configuration *config.Configuration) (*ArticleReposito
 		" port=" + strconv.FormatInt(int64(configuration.Database.Port), 10) +
 		" dbname=" + configuration.Database.DatabaseName +
 		" password=" + configuration.Database.Password +
-		" sslmode=disable" +
+		" sslmode=" + configuration.Database.SslMode +
 		" TimeZone=UTC"
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -38,12 +39,13 @@ func NewArticleRepository(configuration *config.Configuration) (*ArticleReposito
 			if err == nil {
 				break
 			}
-			time.Sleep(1 * time.Second)
+			time.Sleep(2 * time.Second)
 		}
 		if err != nil {
 			panic(err.Error())
 		}
 	}
+
 	fmt.Printf("CONNECTION SUCCESSFUL!  Connected to database %s on cluster %s", configuration.Database.DatabaseName, configuration.Database.Cluster)
 	err = db.AutoMigrate(&domain.Article{})
 	if err != nil {

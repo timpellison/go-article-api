@@ -1,36 +1,35 @@
-resource "aws_lb" "main_lb" {
-  name               = "my-alb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb.id]
-  subnets            = module.vpc.public_subnets
+resource "aws_alb" "main" {
+  name            = "cb-load-balancer"
+  subnets         = aws_subnet.public.*.id
+  security_groups = [aws_security_group.lb.id]
 }
 
-resource "aws_alb_target_group" "my_ecs_target_group" {
-  name        = "my-app-tg"
+resource "aws_alb_target_group" "app" {
+  name        = "cb-target-group"
   port        = 80
   protocol    = "HTTP"
-  vpc_id      = module.vpc.vpc_id
+  vpc_id      = aws_vpc.main.id
   target_type = "ip"
 
   health_check {
-    healthy_threshold   = "3"
+    healthy_threshold   = "6"
     interval            = "30"
     protocol            = "HTTP"
     matcher             = "200"
     timeout             = "3"
-    path                = "/health"
-    unhealthy_threshold = "2"
+    path                = var.health_check_path
+    unhealthy_threshold = "5"
   }
 }
 
-resource "aws_alb_listener" "http" {
-  load_balancer_arn = aws_lb.main_lb.id
-  port              = 80
+# Redirect all traffic from the ALB to the target group
+resource "aws_alb_listener" "front_end" {
+  load_balancer_arn = aws_alb.main.id
+  port              = var.app_port
   protocol          = "HTTP"
 
   default_action {
-    target_group_arn = aws_alb_target_group.my_ecs_target_group.id
+    target_group_arn = aws_alb_target_group.app.id
     type             = "forward"
   }
 }

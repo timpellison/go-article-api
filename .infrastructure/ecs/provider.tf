@@ -1,19 +1,16 @@
 terraform {
   required_providers {
+    random = {
+      source  = "hashicorp/random"
+      version = "3.6.2"
+    }
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.0"
+      version = "5.51.1"
     }
-
-    #     docker = {
-    #       source  = "kreuzwerker/docker"
-    #       version = "~> 3.0"
-    #     }
   }
+}
 
-  backend "s3" {
-    bucket = "tpe-ue1-terraform-state-bucket"
-    key    = "state/terraform_state.tfstate"
-    region = "us-east-1"
-  }
+provider "aws" {
+  region = var.aws_region
 }
