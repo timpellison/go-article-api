@@ -19,8 +19,8 @@
             "value" : "${database_port}"
         },
         {
-            "name" : "DATBASE_SSLMODE",
-            "value" : "enable"
+            "name" : "DATABASE_SSLMODE",
+            "value" : "${database_sslmode}"
         }
     ],
     "logConfiguration": {

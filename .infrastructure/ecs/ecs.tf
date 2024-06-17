@@ -14,7 +14,7 @@ data "template_file" "cb_app" {
     database_password = random_password.password.result
     database_cluster  = aws_rds_cluster.rds.endpoint
     database_port     = "5432"
-    database_sslmode  = "disable"
+    database_sslmode  = "allow"
   }
 }
 
@@ -38,8 +38,9 @@ resource "aws_ecs_service" "main" {
   force_new_deployment = true
 
   network_configuration {
-    security_groups  = [aws_security_group.ecs_tasks.id]
-    subnets          = aws_subnet.private.*.id
+    security_groups = [aws_security_group.ecs_tasks.id]
+    #    subnets          = aws_subnet.private.*.id
+    subnets          = data.aws_subnets.all.ids
     assign_public_ip = true
   }
 

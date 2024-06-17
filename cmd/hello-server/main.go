@@ -32,7 +32,7 @@ func main() {
 			" dbname=" + config.Database.DatabaseName +
 			" password=" + config.Database.Password +
 			" sslmode=" + config.Database.SslMode +
-			" TimeZone=UTC"
+			" TimeZone=UTC connect_timeout=8"
 
 		_, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err != nil {
