@@ -2,7 +2,7 @@ package dto
 
 type Article struct {
 	Metadata    []Hypermedia `json:"_metadata,omitempty"`
-	Id          uint         `json:"id,omitempty"`
+	ID          uint         `json:"id,omitempty"`
 	Title       string       `json:"title,omitempty"`
 	Description string       `json:"description,omitempty"`
 	Content     string       `json:"content,omitempty"`

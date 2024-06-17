@@ -21,6 +21,7 @@ type DatabaseConfiguration struct {
 	DatabaseName string
 	UserName     string
 	Password     string
+	SslMode      string
 }
 
 func NewConfiguration(configFile string) *Configuration {

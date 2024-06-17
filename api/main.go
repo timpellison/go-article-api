@@ -31,6 +31,9 @@ func NewServer(repository *persistence.ArticleRepository, configuration *config.
 	router := mux.NewRouter()
 	server := &ArticleServer{Configuration: configuration, Repository: repository, Handler: router}
 
+	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
 	router.Handle("/api/v1/articles", articlesHandler(server)).Methods("GET")
 	router.Handle("/api/v1/articles", newArticleHandler(server)).Methods("POST")
 	router.Handle("/api/v1/articles/{id}", articleHandler(server)).Methods("GET")
@@ -87,7 +90,7 @@ func articleHandler(server *ArticleServer) http.Handler {
 				return
 			}
 
-			article := &dto.Article{Id: result.ID, Title: result.Title, Description: result.Description, Content: result.Content}
+			article := &dto.Article{ID: result.ID, Title: result.Title, Description: result.Description, Content: result.Content}
 			var media = []dto.Hypermedia{
 				{Relation: "delete", Reference: "/api/v1/articles/" + strconv.FormatInt(int64(id), 10)},
 			}
@@ -130,12 +133,12 @@ func articlesHandler(server *ArticleServer) http.Handler {
 					dto.NewHypermedia("delete", "/api/v1/articles/"+strconv.FormatInt(int64(v.ID), 10)),
 					dto.NewHypermedia("get", "/api/v1/articles/"+strconv.FormatInt(int64(v.ID), 10)),
 				}
-				articleResult[i].Id = v.ID
+				articleResult[i].ID = v.ID
 				articleResult[i].Title = v.Title
 				articleResult[i].Description = v.Description
 				articleResult[i].Content = v.Content
 				articleResult[i].Metadata = hypermedia
-				server.Logger.Printf("Article added.  Id is %d, Title is %v\n", articleResult[i].Id, articleResult[i].Title)
+				server.Logger.Printf("Article added.  Id is %d, Title is %v\n", articleResult[i].ID, articleResult[i].Title)
 			}
 
 			w.Header().Set("Content-Type", "application/json")
@@ -180,13 +183,13 @@ func newArticleHandler(server *ArticleServer) http.Handler {
 
 			newArticle := &dto.Article{}
 
-			newArticle.Id = domainArticle.ID
+			newArticle.ID = domainArticle.ID
 			newArticle.Title = domainArticle.Title
 			newArticle.Description = domainArticle.Description
 			newArticle.Content = domainArticle.Content
 
 			var hypermedia = []dto.Hypermedia{
-				dto.NewHypermedia("delete", "/api/v1/articles/"+strconv.FormatInt(int64(newArticle.Id), 10)),
+				dto.NewHypermedia("delete", "/api/v1/articles/"+strconv.FormatInt(int64(newArticle.ID), 10)),
 			}
 			newArticle.Metadata = hypermedia
 
